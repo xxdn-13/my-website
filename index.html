@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D 旋转相册 - 粒子背景版</title>
+    <title>梦幻星空旋转相册</title>
     <style>
-        /* 1. 基础重置与背景设置 */
+        /* --- 1. 基础设置 --- */
         * {
             margin: 0;
             padding: 0;
@@ -15,166 +15,236 @@
         body {
             width: 100vw;
             height: 100vh;
-            overflow: hidden; /* 防止出现滚动条 */
-            background: radial-gradient(circle, #1a1a2e, #16213e); /* 深色渐变背景，衬托粒子 */
-            font-family: sans-serif;
+            overflow: hidden;
+            /* 梦幻渐变背景 */
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            background: linear-gradient(to right, #0f2027, #203a43, #2c5364); /* 深海蓝调 */
+            font-family: 'Segoe UI', sans-serif;
+            perspective: 1000px; /* 3D 透视 */
         }
 
-        /* 2. 粒子背景容器 */
+        /* --- 2. 粒子背景层 --- */
         #particles-js {
             position: absolute;
             width: 100%;
             height: 100%;
             top: 0;
             left: 0;
-            z-index: 1; /* 背景层级 */
+            z-index: 1;
         }
 
-        /* 3. 3D 相册容器 */
+        /* --- 3. 3D 相册场景 --- */
         .scene {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 2; /* 内容层级 */
-            perspective: 1000px; /* 关键：设置透视深度，产生3D感 */
+            z-index: 2;
             display: flex;
             justify-content: center;
             align-items: center;
+            transform-style: preserve-3d;
         }
 
-        /* 4. 旋转的盒子 */
+        /* 旋转容器 */
         .carousel {
-            width: 200px; /* 图片宽度 */
-            height: 300px; /* 图片高度 */
             position: relative;
-            transform-style: preserve-3d; /* 关键：保留子元素的3D空间 */
-            animation: rotate 20s linear infinite; /* 动画：20秒一圈，线性匀速，无限循环 */
+            width: 220px;
+            height: 320px;
+            transform-style: preserve-3d;
+            animation: rotateScene 25s linear infinite;
         }
 
-        /* 鼠标悬停时暂停动画 */
-        .carousel:hover {
-            animation-play-state: paused;
-        }
-
-        /* 5. 图片样式 */
-        .carousel .item {
+        /* 图片卡片样式 */
+        .card {
             position: absolute;
-            top: 0;
-            left: 0;
             width: 100%;
             height: 100%;
-            border-radius: 10px; /* 圆角 */
+            border-radius: 15px;
             overflow: hidden;
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.5); /* 发光边框 */
-            /* 
-               注意：这里使用了占位图服务。
-               如果你有本地图片，请修改 src 属性。
-            */
-            background-color: rgba(255, 255, 255, 0.1); /* 图片加载前的背景色 */
-            backface-visibility: visible; /* 确保背面也能显示（虽然这里主要看正面） */
+            /* 玻璃质感边框 */
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            /* 图片稍微透明一点，显得更有空气感 */
+            opacity: 0.9; 
+            transition: all 0.3s ease;
+            backface-visibility: hidden; /* 隐藏背面，性能优化 */
         }
 
-        .carousel .item img {
+        .card:hover {
+            opacity: 1;
+            box-shadow: 0 0 40px rgba(255, 255, 255, 0.6);
+            z-index: 100; /* 悬停时层级提高 */
+        }
+
+        .card img {
             width: 100%;
             height: 100%;
-            object-fit: cover; /* 保持图片比例填充 */
+            object-fit: cover;
+            /* 图片内部添加一个渐变遮罩，增加层次感 */
+            mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
         }
 
-        /* 6. 关键帧动画定义 */
-        @keyframes rotate {
-            from {
-                transform: rotateY(0deg);
+        /* --- 4. 动画定义 --- */
+        
+        /* 整体旋转动画 */
+        @keyframes rotateScene {
+            from { transform: rotateY(0deg); }
+            to   { transform: rotateY(360deg); }
+        }
+
+        /* 单个卡片的悬浮动画（让旋转不那么生硬） */
+        /* 注意：这个动画需要通过 JS 动态注入或者在生成元素时处理延迟 */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        /* --- 5. 点击星星特效样式 --- */
+        .star {
+            position: absolute;
+            pointer-events: none; /* 让鼠标事件穿透星星 */
+            animation: fadeOut 1s ease-out forwards;
+            z-index: 9999;
+        }
+
+        @keyframes fadeOut {
+            0% {
+                transform: scale(0) rotate(0deg);
+                opacity: 1;
             }
-            to {
-                transform: rotateY(360deg);
+            100% {
+                transform: scale(2) rotate(360deg);
+                opacity: 0;
             }
         }
     </style>
 </head>
 <body>
 
-    <!-- 粒子背景层 -->
+    <!-- 粒子背景 -->
     <div id="particles-js"></div>
 
-    <!-- 3D 相册层 -->
+    <!-- 3D 相册 -->
     <div class="scene">
-        <div class="carousel" id="carousel-container">
-            <!-- 图片将通过 JS 动态生成，也可以手动写在这里 -->
+        <div class="carousel" id="carousel">
+            <!-- 图片将通过 JS 生成 -->
         </div>
     </div>
 
-    <!-- 引入 particles.js 库 -->
+    <!-- 引入粒子库 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
 
     <script>
-        // --- 第一部分：配置粒子背景 ---
-        document.addEventListener('DOMContentLoaded', function() {
-            if (typeof particlesJS !== 'undefined') {
-                particlesJS('particles-js', {
-                    particles: {
-                        number: { value: 80, density: { enable: true, value_area: 800 } },
-                        color: { value: "#ffffff" },
-                        shape: { type: "circle" },
-                        opacity: { value: 0.5, random: true },
-                        size: { value: 3, random: true },
-                        line_linked: {
-                            enable: true,
-                            distance: 150,
-                            color: "#ffffff",
-                            opacity: 0.4,
-                            width: 1
-                        },
-                        move: {
-                            enable: true,
-                            speed: 2,
-                            direction: "none",
-                            random: true,
-                            straight: false,
-                            out_mode: "out",
-                            bounce: false,
-                        }
-                    },
-                    interactivity: {
-                        detect_on: "canvas",
-                        events: {
-                            onhover: { enable: true, mode: "grab" }, // 鼠标悬停吸引粒子
-                            onclick: { enable: true, mode: "push" }, // 点击添加粒子
-                            resize: true
-                        },
-                        modes: {
-                            grab: { distance: 140, line_linked: { opacity: 0.8 } },
-                            push: { particles_nb: 4 }
-                        }
-                    },
-                    retina_detect: true
-                });
-            }
+        // ================= 配置部分 =================
+
+        // 1. 粒子背景配置 (梦幻气泡风格)
+        particlesJS('particles-js', {
+            particles: {
+                number: { value: 60, density: { enable: true, value_area: 800 } },
+                color: { value: "#ffffff" },
+                shape: { type: "circle" }, // 圆形粒子
+                opacity: { value: 0.5, random: true },
+                size: { value: 4, random: { enable: true, minimum: 2 } }, // 大小不一
+                line_linked: { enable: false }, // 关闭连线，更干净
+                move: {
+                    enable: true,
+                    speed: 1.5, // 慢速漂浮
+                    direction: "top", // 向上漂浮
+                    random: true,
+                    straight: false,
+                    out_mode: "out",
+                    bounce: false,
+                }
+            },
+            interactivity: {
+                detect_on: "canvas",
+                events: {
+                    onhover: { enable: true, mode: "bubble" }, // 鼠标悬停产生气泡
+                    onclick: { enable: true, mode: "push" },
+                    resize: true
+                },
+                modes: {
+                    bubble: { distance: 200, size: 8, duration: 2, opacity: 0.8, speed: 3 },
+                    push: { particles_nb: 4 }
+                }
+            },
+            retina_detect: true
         });
 
-        // --- 第二部分：生成 3D 图片排列 ---
-        const container = document.getElementById('carousel-container');
-        const imageCount = 10;
-        const radius = 350; // 旋转半径，数值越大，图片离中心越远
+        // 2. 生成 3D 图片
+        const carousel = document.getElementById('carousel');
+        const imgCount = 10;
+        const radius = 380; // 旋转半径
 
-        for (let i = 0; i < imageCount; i++) {
-            const item = document.createElement('div');
-            item.className = 'item';
-            
-            // 创建图片元素 (这里使用随机风景图作为演示，请替换为你自己的图片路径)
+        for (let i = 0; i < imgCount; i++) {
+            const card = document.createElement('div');
+            card.className = 'card';
+
+            // 这里使用 picsum 生成随机图片，你可以替换成自己的图片路径
+            // 比如: img/1.jpg, img/2.jpg ...
             const img = document.createElement('img');
-            img.src = `https://picsum.photos/200/300?random=${i}`; 
-            item.appendChild(img);
+            img.src = `https://picsum.photos/220/320?random=${i}`;
+            card.appendChild(img);
 
-            // 核心数学逻辑：
-            // 360度 / 10张图 = 每张图间隔 36度
-            const angle = (360 / imageCount) * i;
+            // 计算角度
+            const angle = (360 / imgCount) * i;
             
-            // 设置 CSS 3D 变换：先旋转角度，再沿 Z 轴推出
-            item.style.transform = `rotateY(${angle}deg) translateZ(${radius}px)`;
+            // 设置 3D 位置
+            card.style.transform = `rotateY(${angle}deg) translateZ(${radius}px)`;
             
-            container.appendChild(item);
+            // 添加一个反向旋转，让图片始终面向外侧（可选，看你喜欢哪种效果）
+            // 如果不加下面这行，图片会像贴在柱子上一样转动
+            // 如果加上，图片会像围成一圈的人一样始终面向圆心外
+            // 这里我们采用“贴在柱子上”的感觉，更符合旋转木马的视觉
+            
+            carousel.appendChild(card);
+        }
+
+        // 3. 点击冒星星特效
+        document.addEventListener('click', function(e) {
+            createStars(e.clientX, e.clientY);
+        });
+
+        function createStars(x, y) {
+            const starCount = 12; // 每次点击生成的星星数量
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                document.body.appendChild(star);
+
+                // 随机星星颜色 (金色、粉色、白色)
+                const colors = ['#FFD700', '#FF69B4', '#FFFFFF', '#00FFFF'];
+                const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                
+                // 设置星星内容 (使用 ✦ 或 ★ 符号，或者用 SVG)
+                star.innerHTML = '✦'; 
+                star.style.color = randomColor;
+                star.style.fontSize = Math.random() * 20 + 10 + 'px'; // 随机大小
+
+                // 初始位置
+                star.style.left = x + 'px';
+                star.style.top = y + 'px';
+
+                // 随机散开方向
+                const angle = Math.random() * Math.PI * 2;
+                const velocity = Math.random() * 100 + 50; // 散开距离
+                const tx = Math.cos(angle) * velocity;
+                const ty = Math.sin(angle) * velocity;
+
+                // 使用 Web Animations API 进行更复杂的动画控制
+                star.animate([
+                    { transform: 'translate(0, 0) scale(0)', opacity: 1 },
+                    { transform: `translate(${tx}px, ${ty}px) scale(1.5)`, opacity: 0 }
+                ], {
+                    duration: 800 + Math.random() * 400,
+                    easing: 'cubic-bezier(0, .9, .57, 1)',
+                }).onfinish = () => {
+                    star.remove(); // 动画结束后移除元素
+                };
+            }
         }
     </script>
 </body>
