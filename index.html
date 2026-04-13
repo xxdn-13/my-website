@@ -67,7 +67,7 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
             /* 图片稍微透明一点，显得更有空气感 */
-            opacity: 0.9; 
+            opacity: 0.9;
             transition: all 0.3s ease;
             backface-visibility: hidden; /* 隐藏背面，性能优化 */
         }
@@ -88,7 +88,7 @@
         }
 
         /* --- 4. 动画定义 --- */
-        
+
         /* 整体旋转动画 */
         @keyframes rotateScene {
             from { transform: rotateY(0deg); }
@@ -124,128 +124,130 @@
 </head>
 <body>
 
-    <!-- 粒子背景 -->
-    <div id="particles-js"></div>
+<!-- 粒子背景 -->
+<div id="particles-js"></div>
 
-    <!-- 3D 相册 -->
-    <div class="scene">
-        <div class="carousel" id="carousel">
-            <!-- 图片将通过 JS 生成 -->
-        </div>
+<!-- 3D 相册 -->
+<div class="scene">
+    <div class="carousel" id="carousel">
+        <!-- 图片将通过 JS 生成 -->
     </div>
+</div>
 
-    <!-- 引入粒子库 -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
+<!-- 引入粒子库 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
 
-    <script>
-        // ================= 配置部分 =================
+<script>
+    // ================= 配置部分 =================
 
-        // 1. 粒子背景配置 (梦幻气泡风格)
-        particlesJS('particles-js', {
-            particles: {
-                number: { value: 60, density: { enable: true, value_area: 800 } },
-                color: { value: "#ffffff" },
-                shape: { type: "circle" }, // 圆形粒子
-                opacity: { value: 0.5, random: true },
-                size: { value: 4, random: { enable: true, minimum: 2 } }, // 大小不一
-                line_linked: { enable: false }, // 关闭连线，更干净
-                move: {
-                    enable: true,
-                    speed: 1.5, // 慢速漂浮
-                    direction: "top", // 向上漂浮
-                    random: true,
-                    straight: false,
-                    out_mode: "out",
-                    bounce: false,
-                }
-            },
-            interactivity: {
-                detect_on: "canvas",
-                events: {
-                    onhover: { enable: true, mode: "bubble" }, // 鼠标悬停产生气泡
-                    onclick: { enable: true, mode: "push" },
-                    resize: true
-                },
-                modes: {
-                    bubble: { distance: 200, size: 8, duration: 2, opacity: 0.8, speed: 3 },
-                    push: { particles_nb: 4 }
-                }
-            },
-            retina_detect: true
-        });
-
-        // 2. 生成 3D 图片
-        const carousel = document.getElementById('carousel');
-        const imgCount = 10;
-        const radius = 380; // 旋转半径
-
-        for (let i = 0; i < imgCount; i++) {
-            const card = document.createElement('div');
-            card.className = 'card';
-
-            // 这里使用 picsum 生成随机图片，你可以替换成自己的图片路径
-            // 比如: img/1.jpg, img/2.jpg ...
-            const img = document.createElement('img');
-            img.src = `https://picsum.photos/220/320?random=${i}`;
-            card.appendChild(img);
-
-            // 计算角度
-            const angle = (360 / imgCount) * i;
-            
-            // 设置 3D 位置
-            card.style.transform = `rotateY(${angle}deg) translateZ(${radius}px)`;
-            
-            // 添加一个反向旋转，让图片始终面向外侧（可选，看你喜欢哪种效果）
-            // 如果不加下面这行，图片会像贴在柱子上一样转动
-            // 如果加上，图片会像围成一圈的人一样始终面向圆心外
-            // 这里我们采用“贴在柱子上”的感觉，更符合旋转木马的视觉
-            
-            carousel.appendChild(card);
-        }
-
-        // 3. 点击冒星星特效
-        document.addEventListener('click', function(e) {
-            createStars(e.clientX, e.clientY);
-        });
-
-        function createStars(x, y) {
-            const starCount = 12; // 每次点击生成的星星数量
-            for (let i = 0; i < starCount; i++) {
-                const star = document.createElement('div');
-                star.className = 'star';
-                document.body.appendChild(star);
-
-                // 随机星星颜色 (金色、粉色、白色)
-                const colors = ['#FFD700', '#FF69B4', '#FFFFFF', '#00FFFF'];
-                const randomColor = colors[Math.floor(Math.random() * colors.length)];
-                
-                // 设置星星内容 (使用 ✦ 或 ★ 符号，或者用 SVG)
-                star.innerHTML = '✦'; 
-                star.style.color = randomColor;
-                star.style.fontSize = Math.random() * 20 + 10 + 'px'; // 随机大小
-
-                // 初始位置
-                star.style.left = x + 'px';
-                star.style.top = y + 'px';
-
-                // 随机散开方向
-                const angle = Math.random() * Math.PI * 2;
-                const velocity = Math.random() * 100 + 50; // 散开距离
-                const tx = Math.cos(angle) * velocity;
-                const ty = Math.sin(angle) * velocity;
-
-                // 使用 Web Animations API 进行更复杂的动画控制
-                star.animate([
-                    { transform: 'translate(0, 0) scale(0)', opacity: 1 },
-                    { transform: `translate(${tx}px, ${ty}px) scale(1.5)`, opacity: 0 }
-                ], {
-                    duration: 800 + Math.random() * 400,
-                    easing: 'cubic-bezier(0, .9, .57, 1)',
-                }).onfinish = () => {
-                    star.remove(); // 动画结束后移除元素
-                };
+    // 1. 粒子背景配置 (梦幻气泡风格)
+    particlesJS('particles-js', {
+        particles: {
+            number: { value: 60, density: { enable: true, value_area: 800 } },
+            color: { value: "#ffffff" },
+            shape: { type: "circle" }, // 圆形粒子
+            opacity: { value: 0.5, random: true },
+            size: { value: 4, random: { enable: true, minimum: 2 } }, // 大小不一
+            line_linked: { enable: false }, // 关闭连线，更干净
+            move: {
+                enable: true,
+                speed: 1.5, // 慢速漂浮
+                direction: "top", // 向上漂浮
+                random: true,
+                straight: false,
+                out_mode: "out",
+                bounce: false,
             }
+        },
+        interactivity: {
+            detect_on: "canvas",
+            events: {
+                onhover: { enable: true, mode: "bubble" }, // 鼠标悬停产生气泡
+                onclick: { enable: true, mode: "push" },
+                resize: true
+            },
+            modes: {
+                bubble: { distance: 200, size: 8, duration: 2, opacity: 0.8, speed: 3 },
+                push: { particles_nb: 4 }
+            }
+        },
+        retina_detect: true
+    });
+
+    // 2. 生成 3D 图片 (修改了图片路径)
+    const carousel = document.getElementById('carousel');
+    // 修改这里的数量，必须和你放入的图片数量一致
+    const imgCount = 10;
+    const radius = 380;
+
+    for (let i = 1; i <= imgCount; i++) { // 注意这里从 1 开始
+        const card = document.createElement('div');
+        card.className = 'card';
+
+        const img = document.createElement('img');
+
+        // 🔥 核心修改：指向本地文件夹
+        // 请确保你的图片格式是 jpg，如果是 png，请改为 .png
+        img.src = `img/${i}.jpg`;
+
+        // 为了防止图片加载慢出现空白，可以添加错误处理
+        img.onerror = function() {
+            console.log(`图片加载失败: img/${i}.jpg`);
+            // 可以设置一个默认的占位图
+            // this.src = 'img/placeholder.jpg';
+        };
+
+        card.appendChild(img);
+
+        const angle = (360 / imgCount) * (i - 1); // 计算角度
+        card.style.transform = `rotateY(${angle}deg) translateZ(${radius}px)`;
+        carousel.appendChild(card);
+    }
+
+
+    // 3. 点击冒星星特效
+    document.addEventListener('click', function(e) {
+        createStars(e.clientX, e.clientY);
+    });
+
+    function createStars(x, y) {
+        const starCount = 12; // 每次点击生成的星星数量
+        for (let i = 0; i < starCount; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            document.body.appendChild(star);
+
+            // 随机星星颜色 (金色、粉色、白色)
+            const colors = ['#FFD700', '#FF69B4', '#FFFFFF', '#00FFFF'];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+
+            // 设置星星内容 (使用 ✦ 或 ★ 符号，或者用 SVG)
+            star.innerHTML = '✦';
+            star.style.color = randomColor;
+            star.style.fontSize = Math.random() * 20 + 10 + 'px'; // 随机大小
+
+            // 初始位置
+            star.style.left = x + 'px';
+            star.style.top = y + 'px';
+
+            // 随机散开方向
+            const angle = Math.random() * Math.PI * 2;
+            const velocity = Math.random() * 100 + 50; // 散开距离
+            const tx = Math.cos(angle) * velocity;
+            const ty = Math.sin(angle) * velocity;
+
+            // 使用 Web Animations API 进行更复杂的动画控制
+            star.animate([
+                { transform: 'translate(0, 0) scale(0)', opacity: 1 },
+                { transform: `translate(${tx}px, ${ty}px) scale(1.5)`, opacity: 0 }
+            ], {
+                duration: 800 + Math.random() * 400,
+                easing: 'cubic-bezier(0, .9, .57, 1)',
+            }).onfinish = () => {
+                star.remove(); // 动画结束后移除元素
+            };
         }
-    </script>
+    }
+</script>
 </body>
 </html>
