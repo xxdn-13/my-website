@@ -3,90 +3,169 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的个人主页</title>
+    <title>欢迎来到我的个人网站</title>
     <style>
-        /* 全局样式重置 */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: #333;
+        /* --- 基础样式 --- */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* 防止滚动条 */
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(to bottom, #1a1a2e, #16213e); /* 深色星空背景 */
+            color: white;
         }
 
-        /* 卡片容器 */
-        .card {
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        /* --- 粒子画布 --- */
+        #particles-js {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* --- 中间卡片内容 --- */
+        .content {
+            position: relative;
+            z-index: 2; /* 确保内容在粒子之上 */
             text-align: center;
-            max-width: 400px;
-            width: 90%;
-            transition: transform 0.3s ease;
-        }
-        .card:hover {
-            transform: translateY(-5px);
-        }
-
-        /* 头像样式 */
-        .avatar {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 4px solid #fff;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.05); /* 毛玻璃背景 */
+            border-radius: 16px;
+            backdrop-filter: blur(10px); /* 毛玻璃模糊效果 */
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            margin: 0 auto;
+            top: 50%;
+            transform: translateY(-50%); /* 垂直居中 */
         }
 
-        /* 文字排版 */
-        h1 { font-size: 24px; margin-bottom: 10px; color: #2d3436; }
-        p { color: #636e72; line-height: 1.6; margin-bottom: 30px; }
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            letter-spacing: 1px;
+            background: linear-gradient(to right, #4facfe, #00f2fe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent; /* 渐变色文字 */
+        }
 
-        /* 按钮样式 */
+        p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #e0e0e0;
+            margin-bottom: 1.5rem;
+        }
+
+        /* 简单的按钮样式 */
         .btn {
             display: inline-block;
             padding: 12px 30px;
-            background: #6c5ce7;
+            background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
             color: white;
             text-decoration: none;
             border-radius: 50px;
             font-weight: bold;
-            transition: background 0.3s ease;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: none;
+            cursor: pointer;
         }
-        .btn:hover { background: #5b4bc4; }
 
-        /* 简单的页脚 */
-        .footer { margin-top: 20px; font-size: 12px; color: #b2bec3; }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+        }
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <!-- 这里的 src 是你的 GitHub 头像地址，你可以换成自己的图片链接 -->
-        <img src="https://avatars.githubusercontent.com/u/YOUR_GITHUB_ID" alt="头像" class="avatar">
-        
-        <!-- 你的名字 -->
-        <h1>你好，我是 [你的名字]</h1>
-        
-        <!-- 你的简介 -->
-        <p>
-            欢迎来到我的个人网站！<br>
-            这是一个基于 Cloudflare Pages 部署的静态页面。<br>
-            热爱编程，热爱生活。🚀
-        </p>
+    <!-- 粒子背景容器 -->
+    <div id="particles-js"></div>
 
-        <!-- 按钮链接 -->
-        <a href="https://github.com/你的用户名" class="btn">联系我</a>
-
-        <div class="footer">
-            &copy; 2026 My Website
-        </div>
+    <!-- 中间内容区域 -->
+    <div class="content">
+        <h1>欢迎来到我的个人网站！</h1>
+        <p>热爱编程，热爱生活。🚀</p>
+        <!-- 这里的按钮链接目前指向 #，你可以修改 href 指向你的 GitHub 或其他页面 -->
     </div>
 
+    <!-- 粒子特效脚本 (使用轻量级的 tsparticles) -->
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            tsParticles.load({
+                id: "particles-js",
+                options: {
+                    background: {
+                        color: {
+                            value: "transparent" // 背景颜色由 CSS 控制
+                        }
+                    },
+                    fpsLimit: 60,
+                    interactivity: {
+                        events: {
+                            onClick: {
+                                enable: true,
+                                mode: "push" // 点击时添加粒子
+                            },
+                            onHover: {
+                                enable: true,
+                                mode: "repulse" // 鼠标悬停时推开粒子
+                            },
+                        },
+                        modes: {
+                            push: {
+                                quantity: 4
+                            },
+                            repulse: {
+                                distance: 100,
+                                duration: 0.4
+                            }
+                        }
+                    },
+                    particles: {
+                        color: {
+                            value: "#ffffff" // 粒子颜色
+                        },
+                        links: {
+                            color: "#ffffff", // 连线颜色
+                            distance: 150,
+                            enable: true, // 开启连线
+                            opacity: 0.2,
+                            width: 1
+                        },
+                        move: {
+                            direction: "none",
+                            enable: true,
+                            outModes: {
+                                default: "bounce" // 碰到边缘反弹
+                            },
+                            random: false,
+                            speed: 3, // 移动速度
+                            straight: false
+                        },
+                        number: {
+                            density: {
+                                enable: true,
+                            },
+                            value: 80 // 粒子数量
+                        },
+                        opacity: {
+                            value: 0.5
+                        },
+                        shape: {
+                            type: "circle" // 粒子形状：圆形
+                        },
+                        size: {
+                            value: { min: 1, max: 3 } // 粒子大小范围
+                        }
+                    },
+                    detectRetina: true
+                }
+            });
+        });
+    </script>
 </body>
 </html>
