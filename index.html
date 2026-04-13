@@ -3,169 +3,179 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>欢迎来到我的个人网站</title>
+    <title>3D 旋转相册 - 粒子背景版</title>
     <style>
-        /* --- 基础样式 --- */
-        body, html {
+        /* 1. 基础重置与背景设置 */
+        * {
             margin: 0;
             padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden; /* 防止滚动条 */
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background: linear-gradient(to bottom, #1a1a2e, #16213e); /* 深色星空背景 */
-            color: white;
+            box-sizing: border-box;
         }
 
-        /* --- 粒子画布 --- */
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden; /* 防止出现滚动条 */
+            background: radial-gradient(circle, #1a1a2e, #16213e); /* 深色渐变背景，衬托粒子 */
+            font-family: sans-serif;
+        }
+
+        /* 2. 粒子背景容器 */
         #particles-js {
             position: absolute;
             width: 100%;
             height: 100%;
-            z-index: 1;
+            top: 0;
+            left: 0;
+            z-index: 1; /* 背景层级 */
         }
 
-        /* --- 中间卡片内容 --- */
-        .content {
+        /* 3. 3D 相册容器 */
+        .scene {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2; /* 内容层级 */
+            perspective: 1000px; /* 关键：设置透视深度，产生3D感 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* 4. 旋转的盒子 */
+        .carousel {
+            width: 200px; /* 图片宽度 */
+            height: 300px; /* 图片高度 */
             position: relative;
-            z-index: 2; /* 确保内容在粒子之上 */
-            text-align: center;
-            padding: 2rem;
-            background: rgba(255, 255, 255, 0.05); /* 毛玻璃背景 */
-            border-radius: 16px;
-            backdrop-filter: blur(10px); /* 毛玻璃模糊效果 */
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
-            max-width: 500px;
-            margin: 0 auto;
-            top: 50%;
-            transform: translateY(-50%); /* 垂直居中 */
+            transform-style: preserve-3d; /* 关键：保留子元素的3D空间 */
+            animation: rotate 20s linear infinite; /* 动画：20秒一圈，线性匀速，无限循环 */
         }
 
-        h1 {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            letter-spacing: 1px;
-            background: linear-gradient(to right, #4facfe, #00f2fe);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent; /* 渐变色文字 */
+        /* 鼠标悬停时暂停动画 */
+        .carousel:hover {
+            animation-play-state: paused;
         }
 
-        p {
-            font-size: 1.1rem;
-            line-height: 1.6;
-            color: #e0e0e0;
-            margin-bottom: 1.5rem;
+        /* 5. 图片样式 */
+        .carousel .item {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 10px; /* 圆角 */
+            overflow: hidden;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.5); /* 发光边框 */
+            /* 
+               注意：这里使用了占位图服务。
+               如果你有本地图片，请修改 src 属性。
+            */
+            background-color: rgba(255, 255, 255, 0.1); /* 图片加载前的背景色 */
+            backface-visibility: visible; /* 确保背面也能显示（虽然这里主要看正面） */
         }
 
-        /* 简单的按钮样式 */
-        .btn {
-            display: inline-block;
-            padding: 12px 30px;
-            background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
-            color: white;
-            text-decoration: none;
-            border-radius: 50px;
-            font-weight: bold;
-            transition: transform 0.2s, box-shadow 0.2s;
-            border: none;
-            cursor: pointer;
+        .carousel .item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* 保持图片比例填充 */
         }
 
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+        /* 6. 关键帧动画定义 */
+        @keyframes rotate {
+            from {
+                transform: rotateY(0deg);
+            }
+            to {
+                transform: rotateY(360deg);
+            }
         }
     </style>
 </head>
 <body>
 
-    <!-- 粒子背景容器 -->
+    <!-- 粒子背景层 -->
     <div id="particles-js"></div>
 
-    <!-- 中间内容区域 -->
-    <div class="content">
-        <h1>欢迎来到我的个人网站！</h1>
-        <p>热爱编程，热爱生活。🚀</p>
-        <!-- 这里的按钮链接目前指向 #，你可以修改 href 指向你的 GitHub 或其他页面 -->
+    <!-- 3D 相册层 -->
+    <div class="scene">
+        <div class="carousel" id="carousel-container">
+            <!-- 图片将通过 JS 动态生成，也可以手动写在这里 -->
+        </div>
     </div>
 
-    <!-- 粒子特效脚本 (使用轻量级的 tsparticles) -->
-    <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js"></script>
+    <!-- 引入 particles.js 库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
+
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            tsParticles.load({
-                id: "particles-js",
-                options: {
-                    background: {
-                        color: {
-                            value: "transparent" // 背景颜色由 CSS 控制
-                        }
-                    },
-                    fpsLimit: 60,
-                    interactivity: {
-                        events: {
-                            onClick: {
-                                enable: true,
-                                mode: "push" // 点击时添加粒子
-                            },
-                            onHover: {
-                                enable: true,
-                                mode: "repulse" // 鼠标悬停时推开粒子
-                            },
-                        },
-                        modes: {
-                            push: {
-                                quantity: 4
-                            },
-                            repulse: {
-                                distance: 100,
-                                duration: 0.4
-                            }
-                        }
-                    },
+        // --- 第一部分：配置粒子背景 ---
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof particlesJS !== 'undefined') {
+                particlesJS('particles-js', {
                     particles: {
-                        color: {
-                            value: "#ffffff" // 粒子颜色
-                        },
-                        links: {
-                            color: "#ffffff", // 连线颜色
+                        number: { value: 80, density: { enable: true, value_area: 800 } },
+                        color: { value: "#ffffff" },
+                        shape: { type: "circle" },
+                        opacity: { value: 0.5, random: true },
+                        size: { value: 3, random: true },
+                        line_linked: {
+                            enable: true,
                             distance: 150,
-                            enable: true, // 开启连线
-                            opacity: 0.2,
+                            color: "#ffffff",
+                            opacity: 0.4,
                             width: 1
                         },
                         move: {
-                            direction: "none",
                             enable: true,
-                            outModes: {
-                                default: "bounce" // 碰到边缘反弹
-                            },
-                            random: false,
-                            speed: 3, // 移动速度
-                            straight: false
-                        },
-                        number: {
-                            density: {
-                                enable: true,
-                            },
-                            value: 80 // 粒子数量
-                        },
-                        opacity: {
-                            value: 0.5
-                        },
-                        shape: {
-                            type: "circle" // 粒子形状：圆形
-                        },
-                        size: {
-                            value: { min: 1, max: 3 } // 粒子大小范围
+                            speed: 2,
+                            direction: "none",
+                            random: true,
+                            straight: false,
+                            out_mode: "out",
+                            bounce: false,
                         }
                     },
-                    detectRetina: true
-                }
-            });
+                    interactivity: {
+                        detect_on: "canvas",
+                        events: {
+                            onhover: { enable: true, mode: "grab" }, // 鼠标悬停吸引粒子
+                            onclick: { enable: true, mode: "push" }, // 点击添加粒子
+                            resize: true
+                        },
+                        modes: {
+                            grab: { distance: 140, line_linked: { opacity: 0.8 } },
+                            push: { particles_nb: 4 }
+                        }
+                    },
+                    retina_detect: true
+                });
+            }
         });
+
+        // --- 第二部分：生成 3D 图片排列 ---
+        const container = document.getElementById('carousel-container');
+        const imageCount = 10;
+        const radius = 350; // 旋转半径，数值越大，图片离中心越远
+
+        for (let i = 0; i < imageCount; i++) {
+            const item = document.createElement('div');
+            item.className = 'item';
+            
+            // 创建图片元素 (这里使用随机风景图作为演示，请替换为你自己的图片路径)
+            const img = document.createElement('img');
+            img.src = `https://picsum.photos/200/300?random=${i}`; 
+            item.appendChild(img);
+
+            // 核心数学逻辑：
+            // 360度 / 10张图 = 每张图间隔 36度
+            const angle = (360 / imageCount) * i;
+            
+            // 设置 CSS 3D 变换：先旋转角度，再沿 Z 轴推出
+            item.style.transform = `rotateY(${angle}deg) translateZ(${radius}px)`;
+            
+            container.appendChild(item);
+        }
     </script>
 </body>
 </html>
