@@ -174,35 +174,48 @@
         retina_detect: true
     });
 
-    // 2. 生成 3D 图片 (修改了图片路径)
+    // 2. 生成 3D 图片 (修改了图片路径和随机逻辑)
     const carousel = document.getElementById('carousel');
-    // 修改这里的数量，必须和你放入的图片数量一致
-    const imgCount = 10;
+    const totalImgs = 12; // 文件夹里总共有多少张图
+    const showCount = 10; // 想要随机显示多少张
     const radius = 380;
 
-    for (let i = 1; i <= imgCount; i++) { // 注意这里从 1 开始
+    // 1. 创建一个包含 1 到 12 的数组 [1, 2, ..., 12]
+    let numbers = Array.from({ length: totalImgs }, (_, i) => i + 1);
+
+    // 2. 洗牌算法 (Fisher-Yates Shuffle) - 将数组顺序彻底打乱
+    for (let i = numbers.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
+    }
+
+    // 3. 截取前 10 个随机数字
+    const randomImgs = numbers.slice(0, showCount);
+
+    // --- 修改结束 ---
+
+    // 4. 循环生成图片 (使用随机后的数组)
+    randomImgs.forEach((imgIndex, i) => {
         const card = document.createElement('div');
         card.className = 'card';
 
         const img = document.createElement('img');
 
-        // 🔥 核心修改：指向本地文件夹
-        // 请确保你的图片格式是 jpg，如果是 png，请改为 .png
-        img.src = `img/${i}.jpg`;
+        // 使用随机出来的数字作为文件名
+        img.src = `img/${imgIndex}.jpg`;
 
-        // 为了防止图片加载慢出现空白，可以添加错误处理
         img.onerror = function() {
-            console.log(`图片加载失败: img/${i}.jpg`);
-            // 可以设置一个默认的占位图
-            // this.src = 'img/placeholder.jpg';
+            console.log(`图片加载失败: img/${imgIndex}.jpg`);
         };
 
         card.appendChild(img);
 
-        const angle = (360 / imgCount) * (i - 1); // 计算角度
+        // 计算角度：依然按照 10 张图均匀分布 (360 / 10)
+        const angle = (360 / showCount) * i;
+
         card.style.transform = `rotateY(${angle}deg) translateZ(${radius}px)`;
         carousel.appendChild(card);
-    }
+    });
 
 
     // 3. 点击冒星星特效
